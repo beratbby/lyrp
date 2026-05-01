@@ -62,7 +62,13 @@ export default function AdminLayout() {
     const token = localStorage.getItem('admin_token');
     if (!token) { navigate('/admin'); return; }
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setAuthed(true);
+    axios.get('/api/admin/verify')
+      .then(() => setAuthed(true))
+      .catch(() => {
+        localStorage.removeItem('admin_token');
+        delete axios.defaults.headers.common['Authorization'];
+        navigate('/admin');
+      });
   }, []);
 
   // Close mobile nav on route change

@@ -24,7 +24,7 @@ export default function Login() {
       login(res.data.token, res.data.user);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      setError(err.response?.data?.error || t.auth.loginBtn + ' failed');
     } finally {
       setLoading(false);
     }
@@ -48,9 +48,9 @@ export default function Login() {
         >
           <div className="mb-10">
             <div className="inline-flex items-center gap-2 bg-sky-50 border border-sky-100 rounded-full px-3 py-1 mb-5">
-              <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-sky-600">Welcome back</span>
+              <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-sky-600">{t.auth.loginBadge}</span>
             </div>
-            <h1 className="text-[2.2rem] font-extrabold tracking-[-0.025em] leading-[1.1]">Log in</h1>
+            <h1 className="text-[2.2rem] font-extrabold tracking-[-0.025em] leading-[1.1]">{t.auth.loginTitle}</h1>
           </div>
 
           <div className="p-1.5 bg-black/[0.025] border border-black/[0.05] rounded-[2rem]">
@@ -65,7 +65,7 @@ export default function Login() {
               )}
 
               <div className="flex flex-col gap-2">
-                <label className="text-[12px] font-semibold text-[#444] uppercase tracking-[0.1em]">Email</label>
+                <label className="text-[12px] font-semibold text-[#444] uppercase tracking-[0.1em]">{t.auth.emailLabel}</label>
                 <div className="p-1 bg-black/[0.025] border border-black/[0.06] rounded-xl">
                   <input
                     type="email"
@@ -79,7 +79,7 @@ export default function Login() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[12px] font-semibold text-[#444] uppercase tracking-[0.1em]">Password</label>
+                <label className="text-[12px] font-semibold text-[#444] uppercase tracking-[0.1em]">{t.auth.passwordLabel}</label>
                 <div className="p-1 bg-black/[0.025] border border-black/[0.06] rounded-xl">
                   <input
                     type="password"
@@ -101,7 +101,7 @@ export default function Login() {
                   <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    Log in
+                    {t.auth.loginBtn}
                     <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center transition-all duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
                       <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
                         <path d="M2 9L9 2M9 2H3.5M9 2V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -114,9 +114,9 @@ export default function Login() {
           </div>
 
           <p className="text-center text-[13px] text-[#999] mt-6">
-            New here?{' '}
+            {t.auth.newHere}{' '}
             <Link to="/signup" className="text-sky-500 font-semibold hover:text-sky-600 transition-colors">
-              Create account
+              {t.auth.signupTitle}
             </Link>
           </p>
         </motion.div>

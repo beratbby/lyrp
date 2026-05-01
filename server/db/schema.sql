@@ -62,6 +62,12 @@ CREATE TABLE IF NOT EXISTS lyrp_coupon_uses (
   UNIQUE(coupon_id, user_id)
 );
 
+CREATE TABLE IF NOT EXISTS lyrp_settings (
+  key VARCHAR(100) PRIMARY KEY,
+  value TEXT,
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
 INSERT INTO lyrp_featured_account (platform, username, url)
 VALUES ('instagram', 'lyrp.io', 'https://instagram.com/lyrp.io')
 ON CONFLICT DO NOTHING;

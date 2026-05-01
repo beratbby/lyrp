@@ -48,6 +48,15 @@ async function migrate() {
     `);
     console.log('✓ lyrp_coupon_uses table');
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS lyrp_settings (
+        key VARCHAR(100) PRIMARY KEY,
+        value TEXT,
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log('✓ lyrp_settings table');
+
     console.log('All migrations complete.');
   } finally {
     client.release();
