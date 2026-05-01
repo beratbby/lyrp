@@ -76,6 +76,139 @@ function CoinIcon({ size = 14, className = '' }) {
   );
 }
 
+const COIN_PACKAGES = [
+  { key: 'starter', coins: 100, usd: 2.99, label: 'Starter' },
+  { key: 'popular', coins: 500, usd: 9.99, label: 'Popular', badge: 'Best value' },
+  { key: 'pro', coins: 1500, usd: 24.99, label: 'Pro' },
+  { key: 'whale', coins: 5000, usd: 69.99, label: 'Whale' },
+];
+
+const PRO_PLAN_LIST = [
+  { key: 'monthly', usd: 4.99, label: 'Monthly', sub: '30 days' },
+  { key: 'yearly', usd: 39.99, label: 'Yearly', sub: '365 days', badge: 'Save 33%' },
+];
+
+function CheckoutBaseDrawer({ title, subtitle, onClose, children }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+      onClick={onClose}>
+      <motion.div
+        initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
+        transition={{ duration: 0.4, ease }}
+        className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
+        <div className="p-1.5 bg-black/[0.04] border border-black/[0.06] rounded-[2rem]">
+          <div className="bg-white rounded-[calc(2rem-6px)] p-6 md:p-7">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-[1.1rem] font-extrabold tracking-tight">{title}</h2>
+                {subtitle && <p className="text-[12px] text-[#999] mt-0.5">{subtitle}</p>}
+              </div>
+              <button onClick={onClose} className="w-8 h-8 rounded-full bg-[#f5f5f5] flex items-center justify-center hover:bg-[#ebebeb] transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            {children}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function TopUpDrawer({ onClose }) {
+  const [loading, setLoading] = useState(null);
+  const [error, setError] = useState('');
+  const buy = async (pkg) => {
+    setLoading(pkg.key); setError('');
+    try {
+      const res = await axios.post('/api/payments/coins/checkout', { packageKey: pkg.key });
+      if (res.data?.url) window.location.href = res.data.url;
+      else setError('Could not create invoice');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Checkout failed');
+      setLoading(null);
+    }
+  };
+  return (
+    <CheckoutBaseDrawer title="Buy coins" subtitle="Pay with crypto via Heleket" onClose={onClose}>
+      {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2.5 text-[12px] text-red-600 font-medium mb-3">{error}</div>}
+      <div className="flex flex-col gap-2">
+        {COIN_PACKAGES.map(pkg => (
+          <button key={pkg.key} onClick={() => buy(pkg)} disabled={loading !== null}
+            className="flex items-center justify-between bg-black/[0.025] hover:bg-black/[0.04] border border-black/[0.06] rounded-2xl px-4 py-3.5 transition-colors disabled:opacity-50">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-center text-amber-500">
+                <CoinIcon size={16} />
+              </div>
+              <div className="text-left">
+                <div className="text-[14px] font-extrabold tabular-nums flex items-center gap-2">
+                  {pkg.coins.toLocaleString()} coins
+                  {pkg.badge && <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-100 text-amber-700 rounded-full px-2 py-0.5">{pkg.badge}</span>}
+                </div>
+                <div className="text-[11px] text-[#aaa]">{pkg.label}</div>
+              </div>
+            </div>
+            <div className="text-[15px] font-extrabold tabular-nums">
+              {loading === pkg.key
+                ? <span className="w-4 h-4 inline-block border-2 border-black/20 border-t-black/60 rounded-full animate-spin" />
+                : `$${pkg.usd}`}
+            </div>
+          </button>
+        ))}
+      </div>
+      <p className="text-[11px] text-[#bbb] text-center mt-4">Coins land in your account after 1 confirmation</p>
+    </CheckoutBaseDrawer>
+  );
+}
+
+function ProDrawer({ onClose }) {
+  const [loading, setLoading] = useState(null);
+  const [error, setError] = useState('');
+  const buy = async (plan) => {
+    setLoading(plan.key); setError('');
+    try {
+      const res = await axios.post('/api/payments/pro/checkout', { plan: plan.key });
+      if (res.data?.url) window.location.href = res.data.url;
+      else setError('Could not create invoice');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Checkout failed');
+      setLoading(null);
+    }
+  };
+  return (
+    <CheckoutBaseDrawer title="Upgrade to Pro" subtitle="50% off all claim costs · forever discounts" onClose={onClose}>
+      {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2.5 text-[12px] text-red-600 font-medium mb-3">{error}</div>}
+      <ul className="space-y-2 mb-5 text-[13px] text-[#444]">
+        <li className="flex items-start gap-2"><span className="text-green-500 mt-0.5">✓</span> All services cost <strong>half the coins</strong></li>
+        <li className="flex items-start gap-2"><span className="text-green-500 mt-0.5">✓</span> Priority queue on SMM panel</li>
+        <li className="flex items-start gap-2"><span className="text-green-500 mt-0.5">✓</span> Cancel anytime — runs out automatically</li>
+      </ul>
+      <div className="flex flex-col gap-2">
+        {PRO_PLAN_LIST.map(plan => (
+          <button key={plan.key} onClick={() => buy(plan)} disabled={loading !== null}
+            className="flex items-center justify-between bg-black/[0.025] hover:bg-black/[0.04] border border-black/[0.06] rounded-2xl px-4 py-3.5 transition-colors disabled:opacity-50">
+            <div className="text-left">
+              <div className="text-[14px] font-extrabold flex items-center gap-2">
+                {plan.label}
+                {plan.badge && <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-sky-100 text-sky-700 rounded-full px-2 py-0.5">{plan.badge}</span>}
+              </div>
+              <div className="text-[11px] text-[#aaa]">{plan.sub}</div>
+            </div>
+            <div className="text-[15px] font-extrabold tabular-nums">
+              {loading === plan.key
+                ? <span className="w-4 h-4 inline-block border-2 border-black/20 border-t-black/60 rounded-full animate-spin" />
+                : `$${plan.usd}`}
+            </div>
+          </button>
+        ))}
+      </div>
+      <p className="text-[11px] text-[#bbb] text-center mt-4">Crypto checkout via Heleket</p>
+    </CheckoutBaseDrawer>
+  );
+}
+
 function CouponDrawer({ onClose, onSuccess }) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -165,6 +298,8 @@ export default function Dashboard() {
   const [showFollowModal, setShowFollowModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showCoupon, setShowCoupon] = useState(false);
+  const [showTopUp, setShowTopUp] = useState(false);
+  const [showPro, setShowPro] = useState(false);
   const [history, setHistory] = useState([]);
   const claimFormRef = useRef(null);
   const inputRef = useRef(null);
@@ -379,6 +514,16 @@ export default function Dashboard() {
         {showCoupon && <CouponDrawer onClose={() => setShowCoupon(false)} onSuccess={handleCouponSuccess} />}
       </AnimatePresence>
 
+      {/* Top-up Drawer */}
+      <AnimatePresence>
+        {showTopUp && <TopUpDrawer onClose={() => setShowTopUp(false)} />}
+      </AnimatePresence>
+
+      {/* Pro Drawer */}
+      <AnimatePresence>
+        {showPro && <ProDrawer onClose={() => setShowPro(false)} />}
+      </AnimatePresence>
+
       {/* ── Header ── */}
       <header className="bg-white/80 backdrop-blur-md border-b border-black/[0.05] px-4 py-3.5 sticky top-0 z-30">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
@@ -398,6 +543,27 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+
+        {/* ── Pro CTA / status ── */}
+        {status.isPro ? (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}
+            className="flex items-center justify-between bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-100 rounded-2xl px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-sky-500 text-white rounded-full px-2 py-0.5">Pro</span>
+              <span className="text-[12px] text-sky-700 font-semibold">50% off all claims · until {new Date(status.proUntil).toLocaleDateString()}</span>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.button onClick={() => setShowPro(true)}
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}
+            className="w-full flex items-center justify-between bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-100 hover:border-sky-300 rounded-2xl px-4 py-3 transition-colors">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-sky-500 text-white rounded-full px-2 py-0.5">Pro</span>
+              <span className="text-[12px] text-sky-700 font-semibold">Get Pro — claims cost <strong>half</strong> the coins</span>
+            </div>
+            <span className="text-sky-600 text-[12px] font-bold">From $4.99 →</span>
+          </motion.button>
+        )}
 
         {/* ── Balance card ── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
@@ -426,6 +592,11 @@ export default function Dashboard() {
                       Earned today
                     </span>
                   )}
+                  <button onClick={() => setShowTopUp(true)}
+                    className="flex items-center gap-1.5 bg-[#0a0a0a] text-white text-[12px] font-bold px-3 py-1.5 rounded-full hover:bg-sky-500 transition-colors whitespace-nowrap">
+                    <CoinIcon size={11} />
+                    Top up
+                  </button>
                   <button onClick={() => setShowCoupon(true)}
                     className="flex items-center gap-1 text-sky-500 text-[12px] font-bold hover:text-sky-600 transition-colors">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>

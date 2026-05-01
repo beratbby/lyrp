@@ -4,6 +4,33 @@ CREATE TABLE IF NOT EXISTS lyrp_users (
   password_hash VARCHAR(255) NOT NULL,
   ig_follow_completed BOOLEAN DEFAULT FALSE,
   coins INTEGER NOT NULL DEFAULT 100,
+  pro_until TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS lyrp_payments (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES lyrp_users(id) ON DELETE SET NULL,
+  order_id VARCHAR(64) UNIQUE NOT NULL,
+  heleket_uuid VARCHAR(64),
+  kind VARCHAR(32) NOT NULL,
+  amount_usd NUMERIC(10,2) NOT NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'pending',
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP DEFAULT NOW(),
+  completed_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lyrp_featured_bookings (
+  id SERIAL PRIMARY KEY,
+  payment_id INTEGER REFERENCES lyrp_payments(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES lyrp_users(id) ON DELETE SET NULL,
+  platform VARCHAR(50) NOT NULL,
+  username VARCHAR(255) NOT NULL,
+  url VARCHAR(500),
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT NOW()
 );
 

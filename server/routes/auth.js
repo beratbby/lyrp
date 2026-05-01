@@ -73,12 +73,19 @@ router.post('/complete-follow', require('../middleware/auth'), async (req, res) 
 router.get('/me', require('../middleware/auth'), async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, email, ig_follow_completed, coins FROM lyrp_users WHERE id = $1',
+      'SELECT id, email, ig_follow_completed, coins, pro_until FROM lyrp_users WHERE id = $1',
       [req.user.id]
     );
     if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
     const u = result.rows[0];
-    res.json({ id: u.id, email: u.email, igFollowCompleted: u.ig_follow_completed, coins: u.coins });
+    res.json({
+      id: u.id,
+      email: u.email,
+      igFollowCompleted: u.ig_follow_completed,
+      coins: u.coins,
+      proUntil: u.pro_until,
+      isPro: u.pro_until && new Date(u.pro_until) > new Date(),
+    });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }

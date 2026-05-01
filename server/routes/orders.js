@@ -30,18 +30,25 @@ router.get('/status', authMiddleware, async (req, res) => {
   try {
     const [cfg, userResult, taskResult, featuredResult] = await Promise.all([
       getConfig(),
-      pool.query('SELECT coins FROM lyrp_users WHERE id = $1', [req.user.id]),
+      pool.query('SELECT coins, pro_until FROM lyrp_users WHERE id = $1', [req.user.id]),
       pool.query(
         'SELECT completed FROM lyrp_daily_tasks WHERE user_id = $1 AND task_date = CURRENT_DATE',
         [req.user.id]
       ),
       pool.query('SELECT * FROM lyrp_featured_account LIMIT 1'),
     ]);
+    const proUntil = userResult.rows[0]?.pro_until || null;
+    const isPro = proUntil && new Date(proUntil) > new Date();
+    const coinCosts = isPro
+      ? Object.fromEntries(Object.entries(cfg.coinCosts).map(([k, v]) => [k, Math.max(1, Math.ceil(v / 2))]))
+      : cfg.coinCosts;
     res.json({
       coins: userResult.rows[0]?.coins || 0,
-      coinCosts: cfg.coinCosts,
+      coinCosts,
       dailyTaskDone: taskResult.rows[0]?.completed || false,
       featuredAccount: featuredResult.rows[0] || null,
+      isPro: !!isPro,
+      proUntil,
     });
   } catch (err) {
     console.error(err);
@@ -103,8 +110,11 @@ router.post('/claim', authMiddleware, async (req, res) => {
   const smmServiceId = cfg.serviceIds[key];
   if (!smmServiceId) return res.status(400).json({ error: 'Service not configured' });
 
-  const cost = cfg.coinCosts[key];
+  let cost = cfg.coinCosts[key];
   if (!cost) return res.status(400).json({ error: 'Invalid service' });
+  const proRes = await pool.query('SELECT pro_until FROM lyrp_users WHERE id = $1', [req.user.id]);
+  const isPro = proRes.rows[0]?.pro_until && new Date(proRes.rows[0].pro_until) > new Date();
+  if (isPro) cost = Math.max(1, Math.ceil(cost / 2));
 
   const client = await pool.connect();
   try {
