@@ -2,7 +2,7 @@ export default {
   dir: 'ltr',
   nav: { logo: 'lyrp.io', login: 'Anmelden', signup: 'Loslegen', lang: 'DE' },
   hero: {
-    badge: '100% Kostenlosens Wachstum',
+    badge: '100% Kostenloses Wachstum',
     title: 'Wachse in sozialen Medien.',
     titleAccent: 'Kostenlos.',
     sub: 'Erhalte jede Stunde gratis Instagram-Follower & TikTok-Likes/-Views. Keine Kreditkarte. Kein Haken.',
