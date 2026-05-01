@@ -6,6 +6,33 @@ import { locales } from '../i18n';
 
 const ease = [0.32, 0.72, 0, 1];
 
+function AnnouncementBar({ t, onDismiss }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease }}
+      className="fixed top-0 left-0 right-0 z-50 bg-sky-500/10 border-b border-sky-200/30 backdrop-blur-sm"
+    >
+      <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between md:justify-center gap-4">
+        <div className="flex items-center gap-3 flex-1 md:flex-none">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+            <span className="text-[13px] md:text-[14px] font-semibold text-sky-900">{t.announcement.text}</span>
+          </div>
+        </div>
+        <Link to="/signup" className="shrink-0 text-[12px] md:text-[13px] font-semibold text-sky-600 hover:text-sky-700 underline">{t.announcement.cta}</Link>
+        <button
+          onClick={onDismiss}
+          className="shrink-0 w-6 h-6 flex items-center justify-center text-sky-400 hover:text-sky-600 transition-colors md:ml-4"
+        >
+          {t.announcement.dismiss}
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 function RevealSection({ children, delay = 0, className = '' }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -133,16 +160,30 @@ function FAQItem({ q, a }) {
 
 export default function Landing() {
   const { t } = useT();
+  const [announcementDismissed, setAnnouncementDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('lyrp_announcement_dismissed') === 'true';
+  });
+
+  const handleDismissAnnouncement = () => {
+    sessionStorage.setItem('lyrp_announcement_dismissed', 'true');
+    setAnnouncementDismissed(true);
+  };
 
   return (
     <div className="grain bg-white text-[#0a0a0a] font-sans overflow-x-hidden">
+
+      {/* Announcement Bar */}
+      {!announcementDismissed && (
+        <AnnouncementBar t={t} onDismiss={handleDismissAnnouncement} />
+      )}
 
       {/* Nav — island pill on desktop, full-width bar on mobile */}
       <motion.nav
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease }}
-        className="fixed top-0 left-0 right-0 z-40 px-4 pt-4 md:top-6 md:left-1/2 md:right-auto md:px-0 md:pt-0 md:-translate-x-1/2 md:w-max"
+        className={`fixed left-0 right-0 z-40 px-4 pt-4 md:pt-0 md:left-1/2 md:right-auto md:px-0 md:-translate-x-1/2 md:w-max transition-all ${announcementDismissed ? 'top-0 md:top-6' : 'top-20 md:top-20'}`}
       >
         {/* Desktop pill */}
         <div className="hidden md:flex bg-white/80 backdrop-blur-xl border border-black/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-full px-5 py-3 items-center gap-5">
@@ -294,6 +335,37 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-16 md:py-32 px-4">
+        <div className="max-w-5xl mx-auto">
+          <RevealSection className="text-center mb-10 md:mb-20">
+            <div className="inline-flex items-center gap-2 bg-[#f5f5f5] rounded-full px-4 py-1.5 mb-5 md:mb-6">
+              <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#666]">{t.testimonials.badge}</span>
+            </div>
+            <h2 className="text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1]">{t.testimonials.title}</h2>
+          </RevealSection>
+          <div className="grid md:grid-cols-3 gap-4 md:gap-5">
+            {t.testimonials.items.map((testimonial, i) => (
+              <RevealSection key={testimonial.name} delay={i * 80} className="h-full">
+                <div className="p-1.5 bg-black/[0.03] border border-black/[0.05] rounded-[2rem] h-full">
+                  <div className="bg-white rounded-[calc(2rem-6px)] p-6 md:p-8 h-full flex flex-col gap-4">
+                    <p className="text-[13px] md:text-[14px] text-[#666] leading-relaxed flex-1 italic">"{testimonial.quote}"</p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-black/[0.06]">
+                      <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-[13px] font-bold text-sky-600">
+                        {testimonial.name.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13px] font-semibold text-[#0a0a0a]">{testimonial.name}</div>
+                        <div className="text-[11px] text-[#999]">{testimonial.platform}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </RevealSection>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* FAQ */}
       <section className="py-16 md:py-32 px-4">

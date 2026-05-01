@@ -85,4 +85,18 @@ export default {
     contact: 'Kontakt',
     rights: '© 2026 lyrp.io — Alle Rechte vorbehalten',
   },
+  announcement: {
+    text: '🚀 Wir sind gerade neu gestartet! Alle Konten wurden zurückgesetzt.',
+    cta: 'Neues Konto erstellen',
+    dismiss: '✕',
+  },
+  testimonials: {
+    badge: 'Gemeinschaft',
+    title: 'Echte Nutzer. Echtes Wachstum.',
+    items: [
+      { name: 'Alex R.', platform: 'Instagram', quote: '+500 echte Follower in 2 Wochen. Keine Bots, kein Spam. Sehr empfehlenswert!' },
+      { name: 'Sara M.', platform: 'TikTok', quote: 'Die kostenlosen Claims funktionieren wirklich. 2K Views an einem Tag. Beste Entdeckung des Jahres.' },
+      { name: 'Kenji T.', platform: 'TikTok', quote: 'Einfach, schnell und wirklich kostenlos. Keine versteckten Gebühren. Genau das, was ich gesucht habe.' },
+    ],
+  },
 };

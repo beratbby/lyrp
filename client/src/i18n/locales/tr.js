@@ -85,4 +85,18 @@ export default {
     contact: 'İletişim',
     rights: '© 2026 lyrp.io — Tüm hakları saklıdır',
   },
+  announcement: {
+    text: '🚀 Az önce yeniden başlattık! Tüm hesaplar sıfırlandı.',
+    cta: 'Yeni hesap oluştur',
+    dismiss: '✕',
+  },
+  testimonials: {
+    badge: 'Topluluk',
+    title: 'Gerçek kullanıcılar. Gerçek büyüme.',
+    items: [
+      { name: 'Alex R.', platform: 'Instagram', quote: '2 haftada +500 gerçek takipçi kazandım. Bot yok, spam yok. Çok tavsiye ediyorum!' },
+      { name: 'Sara M.', platform: 'TikTok', quote: 'Ücretsiz talepler gerçekten işe yarıyor. Bir günde 2K görüntülenme aldım. Yılın en iyi keşfi.' },
+      { name: 'Kenji T.', platform: 'TikTok', quote: 'Basit, hızlı ve gerçekten ücretsiz. Gizli ücret yok. Tam olarak aradığım şey.' },
+    ],
+  },
 };
